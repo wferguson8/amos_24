@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "amos-24"
+version = "0.1.0"
+description = "Source code for 2nd Iteration of AMOS, TeenPact NatCon (2024 Target)"
+authors = ["Will Ferguson <will.ferguson@teenpact.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.3"
+pandas = "^2.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
