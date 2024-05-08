@@ -11,6 +11,8 @@ from scipy.stats import alpha, binom
 from typing import List
 
 poll_data = pd.read_csv('./master_results.csv')
+poll_data.fillna(0, inplace=True)
+poll_data = poll_data.to_numpy()
 # TODO: Determine how to weight these values that are read in
 
 def generate_state_pdf(state: str) -> List:
@@ -21,20 +23,23 @@ def generate_state_pdf(state: str) -> List:
     :return:
     """
 
-    state_data = poll_data[poll_data["State"] == state]
-    vs_a = state_data["Candidate_A_VS"]
-    vs_b = state_data["Candidate_B_VS"]
-    vs_c = state_data["Candidate_C_VS"]
+    state_data = poll_data[poll_data[0] == state]
+    size = state_data[1]
 
-    vb_a = state_data["Party A"]
-    vb_b = state_data["Party B"]
-    vb_c = state_data["Party C"]
+    vs_a = state_data[2]
+    vs_b = state_data[3]
+    vs_c = state_data[4]
 
-    ind = state_data["Independent"]
-    abs = state_data["Absentee"]
+    vb_a = state_data[5]
+    vb_b = state_data[6]
+    vb_c = state_data[7]
+
+    ind = state_data[8]
+    abs = state_data[9]
 
 
     pdfs = []
+    pdfs.append(alpha.fit(size))
     pdfs.append(alpha.fit(vs_a))
     pdfs.append(alpha.fit(vs_b))
     pdfs.append(alpha.fit(vs_c))

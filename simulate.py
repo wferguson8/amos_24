@@ -10,7 +10,9 @@ from synthetics import synthetic_election
 from electoral_college import ec
 from train import train_model
 
-DATA = pd.read_csv('./master_results.csv').to_numpy()
+DATA = pd.read_csv('./master_results.csv')
+DATA.fillna(0, inplace=True)
+DATA = DATA.to_numpy()
 
 def main():
     """
