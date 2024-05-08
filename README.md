@@ -45,7 +45,7 @@ representatives (compassion, vision, perseverance).
 This section will outline how the training/testing data is structured. The first iteration of 
 AMoS.24 is based on the following schema:
 
-| state       | candidate_a_vote_share | candidate_b_vote_share | candidate_c_vote_share | a_home_state | b_home_state | c_home_state | party_a | party_b | party_c | independent | absentee |
-|-------------| ---------------------------- | --------------------------- | ----------------------------- | --------------- | ----------------- | ---------------- | --------- | --------- | -------- | -------------- | ----------- |
-  | postal code | % | % | % | Yes/No | Yes/No | Yes/No | % | % | % | % | % | 
+| state       | year     | candidate_a_vote_share | candidate_b_vote_share | candidate_c_vote_share | a_home_state | b_home_state | c_home_state | party_a | party_b | party_c | independent | absentee |
+|-------------|----------|-----------------------------| --------------------------- | ----------------------------- | --------------- | ----------------- | ---------------- | --------- | --------- | -------- | -------------- | ----------- |
+  | postal code | e.g 2017 | % | % | Yes/No | Yes/No | Yes/No | % | % | % | % | % | % |
 
