@@ -69,9 +69,9 @@ def main():
     for state in tqdm(states, desc='Running State-By-State Analysis'):
         state_sims = results[results[:, 0] == state]
         out[state] = {}
-        out[state]["A"] = state_sims[state_sims[:, 11] == "A"] / num_sims
-        out[state]["B"] = state_sims[state_sims[:, 11] == "B"] / num_sims
-        out[state]["C"] = state_sims[state_sims[:, 11] == "C"] / num_sims
+        out[state]["A"] = state_sims[state_sims[:, 13] == "A"] / num_sims
+        out[state]["B"] = state_sims[state_sims[:, 13] == "B"] / num_sims
+        out[state]["C"] = state_sims[state_sims[:, 13] == "C"] / num_sims
 
     print("Writing results...")
 

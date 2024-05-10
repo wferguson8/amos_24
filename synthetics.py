@@ -4,25 +4,25 @@ Samples a synthetic election
 
 import numpy as np
 import pandas as pd
+import json
 from scipy.stats import alpha
 from train import predict
 from electoral_college import ec, home_states
 
-DATA = pd.read_csv("./master_results.csv")
-DATA.fillna(0, inplace=True)
-DATA = DATA.to_numpy()
-def synthetic_election() -> np.ndarray:
+with open("./something.json") as file:
+    DATA = json.load(file)
 
+def synthetic_election() -> np.ndarray:
     # columns:
     # State, Size, A_VS, B_VS, C_VS,  A_HS, B_HS, C_HS, PA, PB, PC, PI, AB, [Winner], EC_A, EC_B, EC_C
 
     states = ec.keys()
 
     election = np.zeros(shape=(
-        len(states), 16
+        len(states), 17
     ))
 
-    states = np.array(states).reshape((1, len(states))) # Transpose states
+    states = np.array(states).reshape((1, len(states)))  # Transpose states
 
     election[:, 0] = states
 
@@ -33,22 +33,22 @@ def synthetic_election() -> np.ndarray:
         election
     )
 
-    winners = predict(election[:, 0:12])
-    election[:, 12] = np.array(winners).reshape((1, len(states))) # Fill last column with winner of each state
+    winners = predict(election[:, 0:13])
+    election[:, 13] = np.array(winners).reshape((1, len(states)))  # Fill last column with winner of each state
 
     # Update electoral college columns
-    election[:, 13] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "A" else 0
-    election[:, 14] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "B" else 0
-    election[:, 15] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "C" else 0
+    election[:, 14] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "A" else 0
+    election[:, 15] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "B" else 0
+    election[:, 16] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "C" else 0
 
     return election
 
-def fill_row(row: np.ndarray) -> np.ndarray:
+
+def fill_row(row: np.ndarray) -> None:
     """
     Sample data for a single state in a simulation
 
     :param row:
-    :param beta:
     :return:
     """
     state = row[0]
@@ -82,4 +82,3 @@ def fill_row(row: np.ndarray) -> np.ndarray:
     row[10] = alpha.rvs(*alphas[6])
     row[11] = alpha.rvs(*alphas[7])
     row[12] = alpha.rvs(*alphas[8])
-

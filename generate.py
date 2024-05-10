@@ -30,12 +30,12 @@ def generate_state_pdf(state: str) -> List:
     vs_b = state_data[3]
     vs_c = state_data[4]
 
-    vb_a = state_data[5]
-    vb_b = state_data[6]
-    vb_c = state_data[7]
+    vb_a = state_data[8]
+    vb_b = state_data[9]
+    vb_c = state_data[10]
 
-    ind = state_data[8]
-    abs = state_data[9]
+    ind = state_data[11]
+    abs = state_data[12]
 
 
     pdfs = []
