@@ -9,7 +9,7 @@ from scipy.stats import alpha
 from train import predict
 from electoral_college import ec, home_states
 
-with open("./something.json") as file:
+with open("./probability_distributions.json") as file:
     DATA = json.load(file)
 
 def synthetic_election() -> np.ndarray:

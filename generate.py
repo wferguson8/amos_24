@@ -10,9 +10,11 @@ import pandas as pd
 from scipy.stats import alpha, binom
 from typing import List
 
-poll_data = pd.read_csv('./master_results.csv')
+poll_data = pd.read_csv('./master_results_no_2019.csv')
 poll_data.fillna(0, inplace=True)
 poll_data = poll_data.to_numpy()
+
+
 # TODO: Determine how to weight these values that are read in
 
 def generate_state_pdf(state: str) -> List:
@@ -23,20 +25,19 @@ def generate_state_pdf(state: str) -> List:
     :return:
     """
 
-    state_data = poll_data[poll_data[0] == state]
-    size = state_data[1]
+    state_data = poll_data[poll_data[:, 0] == state]
+    size = state_data[:, 1].flatten().astype(int)
 
-    vs_a = state_data[2]
-    vs_b = state_data[3]
-    vs_c = state_data[4]
+    vs_a = state_data[:, 2].flatten().astype(float)
+    vs_b = state_data[:, 3].flatten().astype(float)
+    vs_c = state_data[:, 4].flatten().astype(float)
 
-    vb_a = state_data[8]
-    vb_b = state_data[9]
-    vb_c = state_data[10]
+    vb_a = state_data[:, 8].flatten().astype(float)
+    vb_b = state_data[:, 9].flatten().astype(float)
+    vb_c = state_data[:, 10].flatten().astype(float)
 
-    ind = state_data[11]
-    abs = state_data[12]
-
+    ind = state_data[:, 11].flatten().astype(float)
+    abs = state_data[:, 12].flatten().astype(float)
 
     pdfs = []
     pdfs.append(alpha.fit(size))
@@ -51,6 +52,7 @@ def generate_state_pdf(state: str) -> List:
 
     return pdfs
 
+
 def apply_decay() -> None:
     """
     Weight the polls by recency (or any other relevant factors)
@@ -58,6 +60,7 @@ def apply_decay() -> None:
     :return:
     """
     pass
+
 
 def compile() -> None:
     """
@@ -82,5 +85,6 @@ def compile() -> None:
     with open(filepath, "w") as f:
         json.dump(output, f)
 
-if "__name__" == "__main__":
+
+if __name__ == "__main__":
     compile()
