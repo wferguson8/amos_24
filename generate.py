@@ -7,7 +7,7 @@ from tqdm import tqdm
 import json
 from electoral_college import ec
 import pandas as pd
-from scipy.stats import alpha, binom
+from scipy.stats import alpha, binom, norm
 from typing import List
 
 poll_data = pd.read_csv('./master_results_no_2019.csv')
@@ -40,15 +40,15 @@ def generate_state_pdf(state: str) -> List:
     abs = state_data[:, 12].flatten().astype(float)
 
     pdfs = []
-    pdfs.append(alpha.fit(size))
-    pdfs.append(alpha.fit(vs_a))
-    pdfs.append(alpha.fit(vs_b))
-    pdfs.append(alpha.fit(vs_c))
-    pdfs.append(alpha.fit(vb_a))
-    pdfs.append(alpha.fit(vb_b))
-    pdfs.append(alpha.fit(vb_c))
-    pdfs.append(alpha.fit(ind))
-    pdfs.append(alpha.fit(abs))
+    pdfs.append(norm.fit(size))
+    pdfs.append(norm.fit(vs_a))
+    pdfs.append(norm.fit(vs_b))
+    pdfs.append(norm.fit(vs_c))
+    pdfs.append(norm.fit(vb_a))
+    pdfs.append(norm.fit(vb_b))
+    pdfs.append(norm.fit(vb_c))
+    pdfs.append(norm.fit(ind))
+    pdfs.append(norm.fit(abs))
 
     return pdfs
 

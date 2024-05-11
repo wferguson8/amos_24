@@ -5,7 +5,7 @@ Samples a synthetic election
 import numpy as np
 import pandas as pd
 import json
-from scipy.stats import alpha
+from scipy.stats import alpha, norm
 from train import predict
 from electoral_college import ec, home_states
 
@@ -16,13 +16,14 @@ def synthetic_election() -> np.ndarray:
     # columns:
     # State, Size, A_VS, B_VS, C_VS,  A_HS, B_HS, C_HS, PA, PB, PC, PI, AB, [Winner], EC_A, EC_B, EC_C
 
-    states = ec.keys()
+    states = list(ec.keys())
 
-    election = np.zeros(shape=(
-        len(states), 17
-    ))
+    election = np.zeros(
+        shape=(len(states), 17),
+        dtype=object
+    )
 
-    states = np.array(states).reshape((1, len(states)))  # Transpose states
+    states = np.array(states)
 
     election[:, 0] = states
 
@@ -33,13 +34,11 @@ def synthetic_election() -> np.ndarray:
         election
     )
 
-    winners = predict(election[:, 0:13])
+    winners, deltas = predict(election[:, 0:13])
     election[:, 13] = np.array(winners).reshape((1, len(states)))  # Fill last column with winner of each state
 
     # Update electoral college columns
-    election[:, 14] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "A" else 0
-    election[:, 15] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "B" else 0
-    election[:, 16] = DATA[election[:, 0]]["electoral_college"] if election[:, 11] == "C" else 0
+    election[:, 14:] = deltas
 
     return election
 
@@ -55,17 +54,17 @@ def fill_row(row: np.ndarray) -> None:
 
     alphas = DATA[state]['alphas']
 
-    row[1] = alpha.rvs(*alphas[0])
+    row[1] = max([int(norm.rvs(*alphas[0])), 1])
 
     # Candidate Vote Share Sample (rows 1-3)
-    candidate_a = alpha.rvs(*alphas[1])
-    candidate_b = alpha.rvs(*alphas[2])
-    candidate_c = alpha.rvs(*alphas[3])
+    candidate_a = max([norm.rvs(*alphas[1]), 0.01]) # Enforces no negative values
+    candidate_b = max([norm.rvs(*alphas[2]), 0.01])
+    candidate_c = max([norm.rvs(*alphas[3]), 0.01])
     total = candidate_a + candidate_b + candidate_c
 
-    a_vs = candidate_a / total * 100
-    b_vs = candidate_b / total * 100
-    c_vs = candidate_c / total * 100
+    a_vs = (candidate_a / total)
+    b_vs = (candidate_b / total)
+    c_vs = (candidate_c / total)
 
     row[2] = a_vs
     row[3] = b_vs
@@ -77,8 +76,19 @@ def fill_row(row: np.ndarray) -> None:
     row[7] = 1 if state in home_states["C"] else 0
 
     # Vote Shares (rows 7-11)
-    row[8] = alpha.rvs(*alphas[4])
-    row[9] = alpha.rvs(*alphas[5])
-    row[10] = alpha.rvs(*alphas[6])
-    row[11] = alpha.rvs(*alphas[7])
-    row[12] = alpha.rvs(*alphas[8])
+    pers = max([norm.rvs(*alphas[4]), 0])
+    vision = max([norm.rvs(*alphas[5]), 0])
+    compassion = max([norm.rvs(*alphas[6]), 0])
+    ind = max([norm.rvs(*alphas[7]), 0])
+    abs = max([norm.rvs(*alphas[8]), 0])
+
+    # Normalize vote shares
+    voters = pers + vision + compassion + ind + abs
+
+    row[8] = (pers / voters)
+    row[9] = (vision / voters)
+    row[10] = (compassion / voters)
+    row[11] = (ind / voters)
+    row[12] = (abs / voters)
+
+    return row
