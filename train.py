@@ -57,5 +57,6 @@ def predict(x: np.ndarray) -> np.ndarray:
     deltas[winners[:, 0] == "B", 0] = 0
     deltas[winners[:, 0] == "B", 2] = 0
     deltas[winners[:, 0] == "C", 0:2] = 0
+    deltas[winners[:, 0] == "T", :] = 0 # For now: Drops all ties electoral votes
 
     return winners, deltas

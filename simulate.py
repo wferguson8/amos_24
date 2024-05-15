@@ -22,7 +22,7 @@ def main():
 
     # TODO: Reformat this as command line args
 
-    num_sims = 1
+    num_sims = 1000
 
     # Train the model
     x = DATA[:, 0:-1]
@@ -58,7 +58,7 @@ def main():
 
     print("Elections successfully simulated.")
 
-    results = np.concatenate(results, axis=1)  # Mega 2-D Array
+    results = np.concatenate(results, axis=0)  # Mega 2-D Array
 
     states = ec.keys()
 

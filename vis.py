@@ -5,15 +5,12 @@ Visualize the results of the election simulation
 import geopandas as gpd
 import pandas as pd
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+import matplotlib.pyplot as plt
 import json
 
-# Read in global data resources
-with open("./results_by_state.json", 'r') as file:
-    raw_data = json.load(file)
-
-DATA = pd.read_json(raw_data, orient='index')
-SF = "./shapefiles/cb_2018_us_nation_20m.shp"
-def create_gradient_cm(hex: str, steps: int=5) -> ListedColormap:
+DATA = pd.read_json("./results_by_state.json", orient='index')
+SF = "./shapefiles/States_shapefile-shp/States_shapefile.shp"
+def create_gradient_cm(hex: str, steps: int=1, spread: int=25) -> ListedColormap:
     """
     Note: This code is AI Generated
 
@@ -28,8 +25,8 @@ def create_gradient_cm(hex: str, steps: int=5) -> ListedColormap:
     colors = [rgb]
 
     for i in range(1, steps + 1):
-        step_color = [(c + (255 - c) * i / steps) / 255 for c in rgb]
-        colors.append(step_color)
+        step_color = [max((c - spread), 0) for c in rgb]
+        colors.append(tuple(step_color))
     return ListedColormap(colors)
 
 def single_candidate_outlook(candidate: str, start_color: str) -> None:
@@ -45,9 +42,28 @@ def single_candidate_outlook(candidate: str, start_color: str) -> None:
         filename=SF
     )
 
+    map_df = map_df[map_df['State_Code'] != "DC"]
+
     cmap = create_gradient_cm(start_color)
 
+    combined = map_df.set_index("State_Code").join(DATA[candidate]).reset_index()
+
+    fig, ax = plt.subplots(1, figsize=(10, 10))
+    combined.plot(
+        column=candidate,
+        cmap=cmap,
+        ax=ax
+    )
+
+    ax.axis("off")
+    sm = plt.cm.ScalarMappable(cmap=cmap)
+    cbar = fig.colorbar(sm, ax=ax)
+
+    plt.savefig(f"./{candidate}.png")
 
 
 def lean_map() -> None:
     pass
+
+if __name__ == "__main__":
+    single_candidate_outlook("A", "#FF5733")
