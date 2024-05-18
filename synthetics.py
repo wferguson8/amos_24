@@ -12,7 +12,7 @@ from electoral_college import ec, home_states
 with open("./probability_distributions.json") as file:
     DATA = json.load(file)
 
-modern_data = pd.read_csv("./2024_pre_event.csv")
+modern_data = pd.read_csv("./master_results.csv")
 
 def synthetic_election() -> np.ndarray:
     # columns:
@@ -31,7 +31,7 @@ def synthetic_election() -> np.ndarray:
 
     # generate - Row 12 should still be empty
     election = np.apply_along_axis(
-        fill_row_with_modern_date,
+        fill_row,
         1,
         election
     )
@@ -54,17 +54,17 @@ def fill_row_with_modern_date(row: np.ndarray) -> None:
 
     state = row[0]
 
-    size = modern_data[modern_data.state == state]["size"].values[0]
+    size = modern_data[modern_data.state == state]["size"].mean()
 
-    poll_results_a = modern_data[modern_data["state"] == state]["vs_a"].values[0]
-    poll_results_b = modern_data[modern_data["state"] == state]["vs_b"].values[0]
-    poll_results_c = modern_data[modern_data["state"] == state]["vs_c"].values[0]
+    poll_results_a = modern_data[modern_data["state"] == state]["vs_a"].mean()
+    poll_results_b = modern_data[modern_data["state"] == state]["vs_b"].mean()
+    poll_results_c = modern_data[modern_data["state"] == state]["vs_c"].mean()
 
-    party_res_a = modern_data[modern_data.state == state]["party_a"].values[0]
-    party_res_b = modern_data[modern_data.state == state]["party_b"].values[0]
-    party_res_c = modern_data[modern_data.state == state]["party_c"].values[0]
-    party_res_i = modern_data[modern_data.state == state]["ind"].values[0]
-    party_res_abs = modern_data[modern_data.state == state]["abs"].values[0]
+    party_res_a = modern_data[modern_data.state == state]["party_a"].mean()
+    party_res_b = modern_data[modern_data.state == state]["party_b"].mean()
+    party_res_c = modern_data[modern_data.state == state]["party_c"].mean()
+    party_res_i = modern_data[modern_data.state == state]["ind"].mean()
+    party_res_abs = modern_data[modern_data.state == state]["abs"].mean()
 
     stds = [alpha[1] for alpha in  DATA[state]['alphas']]
 

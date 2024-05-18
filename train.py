@@ -27,6 +27,8 @@ def train_model(x: np.ndarray, y: np.ndarray) -> None:
     :return: None
     """
 
+
+
     cat_features = [0, 5, 6, 7]
 
     x_train, x_test, y_train, y_test = train_test_split(
