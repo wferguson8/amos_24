@@ -27,12 +27,12 @@ def train_model(x: np.ndarray, y: np.ndarray) -> None:
     :return: None
     """
 
+    features = x[:, 1:]
 
-
-    cat_features = [0, 5, 6, 7]
+    cat_features = [5, 6, 7]
 
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=0.1, random_state=10
+        features, y, test_size=0.1, random_state=10
     )
 
     MODEL.fit(x_train, y_train, cat_features=cat_features, eval_set=(x_test, y_test))
@@ -45,7 +45,9 @@ def predict(x: np.ndarray) -> np.ndarray:
     :return:  Predicted outcomes
     """
 
-    winners = MODEL.predict(x)
+    pred = x[:, 1:]
+
+    winners = MODEL.predict(pred)
 
     deltas = np.zeros(
         shape=(x.shape[0],  3)
