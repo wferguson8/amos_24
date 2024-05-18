@@ -44,7 +44,7 @@ def synthetic_election() -> np.ndarray:
 
     return election
 
-def fill_row_with_modern_date(row: np.ndarray) -> None:
+def fill_row_with_modern_date(row: np.ndarray) -> np.ndarray:
     """
     A slight update to use modern simulations for amOS
 
@@ -53,6 +53,10 @@ def fill_row_with_modern_date(row: np.ndarray) -> None:
     """
 
     state = row[0]
+
+    # If the state doesn't exist in the modern data, use historical data to compile estimates
+    if state not in modern_data[modern_data.state == state].values:
+        return fill_row(row)
 
     size = modern_data[modern_data.state == state]["size"].mean()
 
