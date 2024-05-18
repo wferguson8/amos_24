@@ -49,10 +49,12 @@ def main():
 
         if winner == 0:
             elections_winners["A"] += 1
+            e = np.hstack((e, np.ndarray([["A"] for item in range(50)])))
         elif winner == 1:
             elections_winners["B"] += 1
+            e = np.hstack((e, np.ndarray([["B"] for item in range(50)])))
         else:
-            elections_winners["C"] += 1
+            e = np.hstack((e, np.ndarray([["C"] for item in range(50)])))
 
         results.append(e)
 
@@ -82,6 +84,9 @@ def main():
     with open("summary.json", "w") as outfile:
         json.dump(elections_winners, outfile)
         outfile.close()
+
+    results = pd.DataFrame(results)
+    results.to_csv("./results_dump.csv")
 
     print("Elections successfully simulated.")
 
