@@ -29,7 +29,7 @@ def train_model(x: np.ndarray, y: np.ndarray) -> None:
 
     features = x[:, 1:]
 
-    cat_features = [5, 6, 7]
+    cat_features = [4, 5, 6]
 
     x_train, x_test, y_train, y_test = train_test_split(
         features, y, test_size=0.1, random_state=10

@@ -52,7 +52,7 @@ ec = {
 }
 
 home_states = {
-    "A": ["CA", "MO"],
-    "B": ["TX", "FL"],
-    "C": ["GA", "OK"]
+    "A": ["AZ", "VA"],
+    "B": ["CT", "OK"],
+    "C": ["IN", "TN"]
 }

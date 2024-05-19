@@ -14,7 +14,7 @@ DATA = pd.read_csv('./master_results_no_2019.csv')
 DATA.fillna(0, inplace=True)
 DATA = DATA.to_numpy()
 
-def main():
+def main(classify: bool = True):
     """
     The main script of AMoS. Runs a Bunch of Elections simulations and outputs stats about the winner
     :return:
@@ -40,7 +40,7 @@ def main():
     }
 
     for i in tqdm(range(num_sims), desc='Generating simulated elections'):
-        e = synthetic_election()
+        e = synthetic_election(classify=classify)
         a_votes = e[:, 14].sum()
         b_votes = e[:, 15].sum()
         c_votes = e[:, 16].sum()
@@ -49,12 +49,16 @@ def main():
 
         if winner == 0:
             elections_winners["A"] += 1
-            e = np.hstack((e, np.ndarray([["A"] for item in range(50)])))
+            w = np.array(["A" for item in range(50)]).reshape(50, 1)
+            e = np.hstack((e, w))
         elif winner == 1:
             elections_winners["B"] += 1
-            e = np.hstack((e, np.ndarray([["B"] for item in range(50)])))
+            w = np.array(["B" for item in range(50)]).reshape(50, 1)
+            e = np.hstack((e, w))
         else:
-            e = np.hstack((e, np.ndarray([["C"] for item in range(50)])))
+            elections_winners["C"] += 1
+            w = np.array(["C" for item in range(50)]).reshape(50, 1)
+            e = np.hstack((e, w))
 
         results.append(e)
 
@@ -92,7 +96,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(classify=False)
 
 
 

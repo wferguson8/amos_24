@@ -4,6 +4,7 @@ Samples a synthetic election
 
 import numpy as np
 import pandas as pd
+import random
 import json
 from scipy.stats import alpha, norm
 from train import predict
@@ -12,9 +13,9 @@ from electoral_college import ec, home_states
 with open("./probability_distributions.json") as file:
     DATA = json.load(file)
 
-modern_data = pd.read_csv("./master_results.csv")
+modern_data = pd.read_csv("./test.csv")
 
-def synthetic_election() -> np.ndarray:
+def synthetic_election(classify: bool = True) -> np.ndarray:
     # columns:
     # State, Size, A_VS, B_VS, C_VS,  A_HS, B_HS, C_HS, PA, PB, PC, PI, AB, [Winner], EC_A, EC_B, EC_C
 
@@ -29,22 +30,36 @@ def synthetic_election() -> np.ndarray:
 
     election[:, 0] = states
 
+    # Randomly use forest to make predctions
+    jitter = random.random()
+
+    if jitter < 0.3: classify = not classify
+
     # generate - Row 12 should still be empty
-    election = np.apply_along_axis(
-        fill_row,
-        1,
-        election
-    )
+    if classify:
+        election = np.apply_along_axis(
+            fill_row,
+            1,
+            election
+        )
 
-    winners, deltas = predict(election[:, 0:13])
-    election[:, 13] = np.array(winners).reshape((1, len(states)))  # Fill last column with winner of each state
+        winners, deltas = predict(election[:, 0:13])
+        election[:, 13] = np.array(winners).reshape((1, len(states)))  # Fill last column with winner of each state
 
-    # Update electoral college columns
-    election[:, 14:] = deltas
+        # Update electoral college columns
+        election[:, 14:] = deltas
 
-    return election
+        return election
+    else:
+        election = np.apply_along_axis(
+            fill_row_with_modern_data,
+            1,
+            election
+        )
 
-def fill_row_with_modern_date(row: np.ndarray) -> np.ndarray:
+        return election
+
+def fill_row_with_modern_data(row: np.ndarray) -> np.ndarray:
     """
     A slight update to use modern simulations for amOS
 
@@ -54,35 +69,10 @@ def fill_row_with_modern_date(row: np.ndarray) -> np.ndarray:
 
     state = row[0]
 
-    # If the state doesn't exist in the modern data, use historical data to compile estimates
-    if state not in modern_data[modern_data.state == state].values:
-        return fill_row(row)
-
-    size = modern_data[modern_data.state == state]["size"].mean()
-
-    poll_results_a = modern_data[modern_data["state"] == state]["vs_a"].mean()
-    poll_results_b = modern_data[modern_data["state"] == state]["vs_b"].mean()
-    poll_results_c = modern_data[modern_data["state"] == state]["vs_c"].mean()
-
-    party_res_a = modern_data[modern_data.state == state]["party_a"].mean()
-    party_res_b = modern_data[modern_data.state == state]["party_b"].mean()
-    party_res_c = modern_data[modern_data.state == state]["party_c"].mean()
-    party_res_i = modern_data[modern_data.state == state]["ind"].mean()
-    party_res_abs = modern_data[modern_data.state == state]["abs"].mean()
-
     stds = [alpha[1] for alpha in  DATA[state]['alphas']]
+    means = DATA[state]['alt_means'] if state in modern_data[modern_data.state == state].values else [alpha[0] for alpha in DATA[state]['alphas']]
 
-    alphas = [
-        [size, stds[0]],
-        [poll_results_a, stds[1]],
-        [poll_results_b, stds[2]],
-        [poll_results_c, stds[3]],
-        [party_res_a, stds[4]],
-        [party_res_b, stds[5]],
-        [party_res_c, stds[6]],
-        [party_res_i, stds[7]],
-        [party_res_abs, stds[8]]
-    ]
+    alphas = [[means[i], stds[i]] for i in range(0, len(stds))]
 
     size = max([int(norm.rvs(*alphas[0])), 1])
 
@@ -97,6 +87,17 @@ def fill_row_with_modern_date(row: np.ndarray) -> np.ndarray:
     a_vs = (candidate_a / total)
     b_vs = (candidate_b / total)
     c_vs = (candidate_c / total)
+
+    w = np.argmax([a_vs, b_vs, c_vs])
+    if w == 0:
+        winner = "A"
+        row[14] = ec[state]
+    elif w == 1:
+        winner = "B"
+        row[15] = ec[state]
+    else:
+        winner = "C"
+        row[16] = ec[state]
 
     row[2] = a_vs
     row[3] = b_vs
@@ -117,16 +118,18 @@ def fill_row_with_modern_date(row: np.ndarray) -> np.ndarray:
     # Normalize vote shares
     voters = pers + vision + compassion + ind + abs
 
-    row[8] = pers
-    row[9] = vision
-    row[10] = compassion
-    row[11] = ind
-    row[12] = abs
+    row[8] = pers / voters
+    row[9] = vision / voters
+    row[10] = compassion / voters
+    row[11] = ind / voters
+    row[12] = abs / voters
+
+    row[13] = winner
 
     return row
 
 
-def fill_row(row: np.ndarray) -> None:
+def fill_row(row: np.ndarray) -> np.ndarray:
     """
     Sample data for a single state in a simulation
 

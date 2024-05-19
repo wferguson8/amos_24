@@ -14,6 +14,8 @@ poll_data = pd.read_csv('./master_results_no_2019.csv')
 poll_data.fillna(0, inplace=True)
 poll_data = poll_data.to_numpy()
 
+modern_data = pd.read_csv("./test.csv")
+
 
 # TODO: Determine how to weight these values that are read in
 
@@ -52,6 +54,34 @@ def generate_state_pdf(state: str) -> List:
 
     return pdfs
 
+def modern(state: str):
+
+    size = modern_data[modern_data.state == state]["size"].mean()
+
+    poll_results_a = modern_data[modern_data["state"] == state]["vs_a"].mean()
+    poll_results_b = modern_data[modern_data["state"] == state]["vs_b"].mean()
+    poll_results_c = modern_data[modern_data["state"] == state]["vs_c"].mean()
+
+    party_res_a = modern_data[modern_data.state == state]["party_a"].mean()
+    party_res_b = modern_data[modern_data.state == state]["party_b"].mean()
+    party_res_c = modern_data[modern_data.state == state]["party_c"].mean()
+    party_res_i = modern_data[modern_data.state == state]["ind"].mean()
+    party_res_abs = modern_data[modern_data.state == state]["abs"].mean()
+
+    means = [
+        size,
+        poll_results_a,
+        poll_results_b,
+        poll_results_c,
+        party_res_a,
+        party_res_b,
+        party_res_c,
+        party_res_i,
+        party_res_abs
+    ]
+
+    return means
+
 
 def apply_decay() -> None:
     """
@@ -78,7 +108,8 @@ def compile() -> None:
     for state in tqdm(states):
         output[state] = {
             "electoral_college": ec[state],
-            "alphas": generate_state_pdf(state)
+            "alphas": generate_state_pdf(state),
+            "alt_means": modern(state)
         }
 
     filepath = "./probability_distributions.json"
